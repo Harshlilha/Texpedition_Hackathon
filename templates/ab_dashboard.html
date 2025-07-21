@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A/B Testing Dashboard - Email Marketing</title>
+    <title>A/B Testing Dashboard - Smart Email Companion</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         /* General styles */
         * {
@@ -14,10 +21,20 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', sans-serif;
+            background-color: #0c0a1a; /* Dark base color for Vanta */
             min-height: 100vh;
-            color: #333;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        #vanta-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
 
         .container {
@@ -25,90 +42,106 @@
             margin: 0 auto;
             padding: 20px;
         }
+        
+        /* Glassmorphism Container Style */
+        .glass-container {
+            background: rgba(23, 20, 48, 0.55);
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
+            padding: 40px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
         .header h1 {
-            color: #4a4a4a;
-            font-size: 2.8em;
-            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 3em;
+            margin-bottom: 15px;
             font-weight: 700;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
         }
 
         .header p {
-            color: #777;
+            color: #c0c0c0;
             font-size: 1.1em;
             line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         /* Tabs styling */
         .tab-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .tabs {
             display: flex;
             justify-content: center;
             margin-bottom: 25px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .tab-button {
             background: none;
             border: none;
-            padding: 15px 25px;
+            padding: 15px 30px;
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
-            color: #555;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
+            color: #a0a0c0;
+            transition: color 0.3s ease, border-bottom 0.3s ease, text-shadow 0.3s ease;
             border-bottom: 3px solid transparent;
         }
 
         .tab-button:hover {
-            color: #667eea;
+            color: #ffffff;
         }
 
         .tab-button.active {
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
+            color: #ffffff;
+            border-bottom: 3px solid #7e57c2;
+            text-shadow: 0 0 10px rgba(126, 87, 194, 0.7);
         }
 
         .tab-pane {
             display: none;
-            padding: 20px 0;
-            animation: fadeIn 0.5s ease-in-out;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-in-out;
         }
 
         .tab-pane.active {
             display: block;
         }
+        
+        .tab-pane h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* Forms styling */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #444;
+            color: #d0d0d0;
         }
 
         .form-group input[type="text"],
@@ -116,170 +149,168 @@
         .form-group select,
         .form-group input[type="file"] {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 14px 18px;
+            background-color: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
             font-size: 1em;
+            color: #f0f0f0;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             resize: vertical;
         }
+        
+        .form-group select option {
+            background-color: #1c183a;
+            color: #f0f0f0;
+        }
+        
+        .form-group input[type="file"]::file-selector-button {
+             background-color: #667eea;
+             color: white;
+             border: none;
+             padding: 8px 12px;
+             border-radius: 5px;
+             cursor: pointer;
+             transition: background-color 0.3s ease;
+        }
+        .form-group input[type="file"]::file-selector-button:hover {
+            background-color: #5a6edb;
+        }
 
-        .form-group input[type="text"]:focus,
+        .form-group input:focus,
         .form-group textarea:focus,
-        .form-group select:focus,
-        .form-group input[type="file"]:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        .form-group select:focus {
+            border-color: #7e57c2;
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.4);
             outline: none;
         }
 
         .btn {
             display: inline-block;
-            background-color: #667eea;
+            background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 25px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .btn:hover {
-            background-color: #5a6edb;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0px) scale(0.98);
         }
 
         .btn:disabled {
-            background-color: #cccccc;
+            background: #555;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
-        /* Alerts */
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            display: none; /* Hidden by default */
-            animation: fadeIn 0.5s ease-in-out;
+        /* 3D Interactive Cards */
+        .email-variation-card, .campaign-card, .metric-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
+            transform-style: preserve-3d;
         }
 
-        .alert.alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert.alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert.alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .email-variation-card:hover, .campaign-card:hover, .metric-card:hover {
+            transform: translateY(-10px) rotateX(3deg) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         /* Campaign variations display */
-        .email-variations {
-            margin-top: 30px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        .email-variation-card {
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e0e0e0;
-        }
+        .email-variations { margin-top: 30px; }
+        .email-variation-card { margin-bottom: 20px; }
 
         .email-variation-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.4em;
+            color: #9fa8da;
+            margin-bottom: 15px;
+            font-size: 1.5em;
         }
 
         .email-variation-card p {
-            font-size: 0.95em;
-            line-height: 1.6;
+            font-size: 1em;
+            line-height: 1.7;
             margin-bottom: 10px;
-            color: #555;
-            white-space: pre-wrap; /* Preserve line breaks */
+            color: #d0d0d0;
+            white-space: pre-wrap;
         }
 
         .email-variation-card strong {
-            color: #333;
+            color: #fff;
+            font-weight: 600;
         }
 
         /* Manage Campaigns */
         #campaigns-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
             margin-top: 20px;
         }
 
         .campaign-card {
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e0e0e0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .campaign-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.5em;
+            color: #9fa8da;
+            margin-bottom: 15px;
+            font-size: 1.6em;
         }
 
         .campaign-card p {
-            margin-bottom: 8px;
-            font-size: 0.95em;
-            color: #555;
+            margin-bottom: 10px;
+            font-size: 1em;
+            color: #c0c0c0;
         }
 
         .campaign-card .status {
             font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 8px;
             display: inline-block;
             margin-top: 10px;
+            font-size: 0.9em;
         }
 
-        .campaign-card .status.draft { background-color: #ffefd5; color: #ffa500; }
-        .campaign-card .status.sent { background-color: #d4edda; color: #155724; }
-        .campaign-card .status.active { background-color: #d1ecf1; color: #0c5460; }
-        .campaign-card .status.failed { background-color: #f8d7da; color: #721c24; }
+        .campaign-card .status.draft { background-color: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        .campaign-card .status.sent { background-color: rgba(40, 167, 69, 0.2); color: #28a745; }
+        .campaign-card .status.active { background-color: rgba(12, 84, 96, 0.2); color: #0c5460; }
+        .campaign-card .status.failed { background-color: rgba(114, 28, 36, 0.2); color: #f8d7da; }
 
         .campaign-card .btn {
             width: 100%;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         /* View Results */
         #results-display {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         #results-display h3 {
             text-align: center;
-            color: #4a4a4a;
+            color: #e0e0e0;
             margin-bottom: 25px;
             font-size: 1.8em;
         }
@@ -292,63 +323,93 @@
         }
 
         .metric-card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             text-align: center;
-            border: 1px solid #e0e0e0;
         }
 
         .metric-card.winner {
-            border: 3px solid #28a745;
-            box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+            border: 2px solid #56fcc2;
+            box-shadow: 0 0 25px rgba(86, 252, 194, 0.4);
         }
 
         .metric-card h4 {
-            color: #667eea;
+            color: #9fa8da;
             font-size: 1.6em;
             margin-bottom: 15px;
         }
 
         .metric-card p {
             font-size: 1em;
-            color: #666;
+            color: #c0c0c0;
             margin-bottom: 5px;
         }
 
         .metric-card .value {
             font-size: 2.2em;
             font-weight: 700;
-            color: #333;
+            color: #ffffff;
             margin-bottom: 10px;
         }
 
         .metric-card .rate {
             font-size: 1.8em;
             font-weight: 700;
-            color: #28a745;
+            color: #56fcc2;
         }
 
-        .metric-card .rate.low {
-            color: #dc3545;
-        }
-
-        .metric-card .rate.medium {
-            color: #ffc107;
-        }
+        .metric-card .rate.low { color: #ff8a80; }
+        .metric-card .rate.medium { color: #ffd180; }
 
         .chart-container {
             margin-top: 40px;
-            background-color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
             padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
-            border: 1px solid #e0e0e0;
         }
+        
+        /* Finalize & Send Tabs */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .data-table th {
+            background-color: rgba(126, 87, 194, 0.2);
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+        .data-table td {
+            color: #c0c0c0;
+        }
+        #finalizedMailIframe, #optimizedPreviewIframe {
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            border: 1px solid;
+            color: #fff;
+        }
+        .alert.alert-success { background-color: rgba(40, 167, 69, 0.3); border-color: #28a745; }
+        .alert.alert-danger { background-color: rgba(220, 53, 69, 0.3); border-color: #dc3545; }
+        .alert.alert-info { background-color: rgba(23, 162, 184, 0.3); border-color: #17a2b8; }
+
 
         /* Loading Overlay */
         #loading-overlay {
@@ -357,7 +418,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -366,13 +428,15 @@
             font-size: 1.5em;
             flex-direction: column;
         }
-
+        
         .spinner {
-            border: 8px solid rgba(255, 255, 255, 0.3);
-            border-top: 8px solid #667eea;
-            border-radius: 50%;
             width: 60px;
             height: 60px;
+            border-radius: 50%;
+            display: inline-block;
+            border-top: 4px solid #7e57c2;
+            border-right: 4px solid transparent;
+            box-sizing: border-box;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
@@ -384,40 +448,30 @@
 
         /* Responsive design */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
-            }
-            .tab-button {
-                padding: 12px 15px;
-                font-size: 0.9em;
-            }
-            .container {
-                padding: 15px;
-            }
-            .email-variation-card, .campaign-card, .metric-card {
-                padding: 15px;
-            }
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
+            .header h1 { font-size: 2.2em; }
+            .tabs { flex-wrap: wrap; }
+            .tab-button { padding: 12px 15px; font-size: 0.95em; }
+            .container { padding: 15px; }
+            .email-variation-card, .campaign-card, .metric-card { padding: 20px; }
+            .metrics-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <div id="vanta-bg"></div>
     <div class="container">
-        <div class="header">
-            <h1>A/B Testing Dashboard</h1>
+        <div class="header glass-container">
+            <h1>🚀 Smart Email Marketing Companion</h1>
             <p>Effortlessly create, manage, and analyze your email marketing A/B tests with AI-powered content generation and robust tracking.</p>
         </div>
 
-        <div class="tab-container">
+        <div class="tab-container glass-container">
             <div class="tabs">
                 <button class="tab-button active" onclick="showTab('create-campaign')">Create Campaign</button>
                 <button class="tab-button" onclick="showTab('manage-campaigns')">Manage Campaigns</button>
                 <button class="tab-button" onclick="showTab('view-results')">View Results</button>
                 <button class="tab-button" onclick="showTab('finalize-mails')">Finalize Mails</button>
                 <button class="tab-button" onclick="showTab('send-optimized')">Send Optimized</button>
-
             </div>
 
             <div id="create-campaign" class="tab-pane active">
@@ -432,7 +486,7 @@
                         <input type="text" id="productName" name="product_name" required>
                     </div>
                     <div class="form-group">
-                        <label for="offerDetails">Offer/Campaign Focus (e.g., "15% off first purchase", "Free trial", "New feature launch"):</label>
+                        <label for="offerDetails">Offer/Campaign Focus (e.g., "15% off first purchase", "Free trial"):</label>
                         <textarea id="offerDetails" name="offer_details" rows="3" required></textarea>
                     </div>
                     <div class="form-group">
@@ -448,7 +502,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="targetAudience">Target Audience (Optional, e.g., "small business owners", "tech enthusiasts"):</label>
+                        <label for="targetAudience">Target Audience (Optional, e.g., "small business owners"):</label>
                         <input type="text" id="targetAudience" name="target_audience">
                     </div>
                     <button type="submit" class="btn">Generate Email Variations</button>
@@ -460,7 +514,7 @@
                         <div id="variationA" class="email-variation-card"></div>
                         <div id="variationB" class="email-variation-card"></div>
                     </div>
-                    <p>Next: Upload your recipient list (CSV with 'email', 'first\_name', 'last\_name' columns).</p>
+                    <p>Next: Upload your recipient list (CSV with 'email', 'first_name', 'last_name' columns).</p>
                     <div class="form-group">
                         <label for="recipientFile">Upload Recipient CSV:</label>
                         <input type="file" id="recipientFile" accept=".csv" required>
@@ -481,7 +535,7 @@
                 <h2>View Campaign Results</h2>
                 <div class="form-group">
                     <label for="selectCampaignResults">Select Campaign:</label>
-                    <select id="selectCampaignResults" class="form-control">
+                    <select id="selectCampaignResults">
                         <option value="">Select a sent campaign</option>
                     </select>
                 </div>
@@ -489,58 +543,53 @@
                 <div id="results-display" style="display: none;">
                     <h3>A/B Test Results for <span id="campaign-name-results"></span></h3>
                     <p>Status: <span id="campaign-status-results"></span> | Total Recipients: <span id="campaign-total-recipients-results"></span></p>
-                    <div class="metrics-grid" id="metrics-grid">
-                        </div>
+                    <div class="metrics-grid" id="metrics-grid"></div>
                     <div class="chart-container">
                         <canvas id="resultsChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Finalize Mails Tab -->
             <div id="finalize-mails" class="tab-pane">
                 <h2>Finalize Mails</h2>
                 <div class="form-group">
                     <label for="finalizeCampaignSelect">Select Campaign:</label>
-                    <select id="finalizeCampaignSelect" class="form-control">
+                    <select id="finalizeCampaignSelect">
                         <option value="">Select a campaign</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="variantSelect">Select Variant:</label>
-                    <select id="variantSelect" class="form-control" disabled>
+                    <select id="variantSelect" disabled>
                         <option value="">Select a variant</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="templateCategorySelect">Select Template Category:</label>
-                    <select id="templateCategorySelect" class="form-control">
+                    <select id="templateCategorySelect">
                         <option value="">Select a category</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="templateFileSelect">Select Template File:</label>
-                    <select id="templateFileSelect" class="form-control" disabled>
+                    <select id="templateFileSelect" disabled>
                         <option value="">Select a template</option>
                     </select>
                 </div>
                 <button id="integrate-btn" class="btn" disabled>Integrate</button>
                 <div id="finalized-mail-preview" style="margin-top: 30px; display: none;">
                     <h3>Finalized Mail Preview</h3>
-                    <iframe id="finalizedMailIframe" style="width:100%;height:400px;border:1px solid #ccc;"></iframe>
+                    <iframe id="finalizedMailIframe" style="width:100%;height:400px;"></iframe>
                 </div>
             </div>
-
-            <!-- Send Optimized Tab -->
+            
             <div id="send-optimized" class="tab-pane">
                 <h2>Send Optimization by Open Time</h2>
                 <p>Upload a CSV file with <strong>email</strong> and <strong>opentime</strong> (HH:MM format).</p>
-
                 <div class="form-group">
                     <label for="optimizedCsvFile">Select Customer CSV File:</label>
                     <input type="file" id="optimizedCsvFile" accept=".csv" />
                 </div>
-
                 <div id="optimizedResults" class="form-group" style="display: none;">
                     <h3>Batch Assignment Preview</h3>
                     <table class="data-table" id="batchTable">
@@ -555,16 +604,13 @@
                     </table>
                     <div class="form-group" style="margin-top: 20px;">
                         <h3>Final Email Preview</h3>
-                        <iframe id="optimizedPreviewIframe" style="width:100%; height:400px; border:1px solid #ccc;"></iframe>
+                        <iframe id="optimizedPreviewIframe" style="width:100%; height:400px;"></iframe>
                     </div>
-
                     <div class="button-group">
-                        <button id="startSendBtn" onclick="triggerOptimizedSend()" disabled>Start Scheduled Sending</button>
+                        <button id="startSendBtn" class="btn" onclick="triggerOptimizedSend()" disabled>Start Scheduled Sending</button>
                     </div>
                 </div>
             </div>
-
-
         </div>
     </div>
 
@@ -586,16 +632,15 @@
             document.getElementById(tabName).classList.add('active');
             document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
 
-            // Specific actions when switching tabs
             if (tabName === 'manage-campaigns') {
                 loadCampaigns();
             } else if (tabName === 'view-results') {
                 loadCampaignOptions();
-                document.getElementById('results-display').style.display = 'none'; // Hide results until selected
-                document.getElementById('view-results-btn').disabled = true; // Disable button until selection
-                document.getElementById('selectCampaignResults').value = ''; // Reset dropdown
+                document.getElementById('results-display').style.display = 'none';
+                document.getElementById('view-results-btn').disabled = true;
+                document.getElementById('selectCampaignResults').value = '';
             } else if (tabName === 'finalize-mails') {
-                // Additional actions for finalize mails tab
+                // Actions handled by dedicated event listener
             }
         }
 
@@ -610,9 +655,7 @@
             try {
                 const response = await fetch('/create-campaign', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data),
                 });
                 const result = await response.json();
@@ -621,7 +664,7 @@
                     currentCampaignId = result.campaign_id;
                     displayVariations(result.variations);
                     document.getElementById('variation-display').style.display = 'block';
-                    document.getElementById('send-campaign-btn').disabled = true; // Disable until recipients uploaded
+                    document.getElementById('send-campaign-btn').disabled = true;
                     showAlert('Campaign created and variations generated!', 'success');
                 } else {
                     showAlert('Error: ' + result.error, 'danger');
@@ -636,13 +679,8 @@
         function displayVariations(variations) {
             const variationA = document.getElementById('variationA');
             const variationB = document.getElementById('variationB');
-
-            variationA.innerHTML = `<h3>Variation A</h3>
-                                    <p><strong>Subject:</strong> ${variations[0].subject}</p>
-                                    <p><strong>Body:</strong> ${variations[0].body}</p>`;
-            variationB.innerHTML = `<h3>Variation B</h3>
-                                    <p><strong>Subject:</strong> ${variations[1].subject}</p>
-                                    <p><strong>Body:</strong> ${variations[1].body}</p>`;
+            variationA.innerHTML = `<h3>Variation A</h3><p><strong>Subject:</strong> ${variations[0].subject}</p><p><strong>Body:</strong> ${variations[0].body}</p>`;
+            variationB.innerHTML = `<h3>Variation B</h3><p><strong>Subject:</strong> ${variations[1].subject}</p><p><strong>Body:</strong> ${variations[1].body}</p>`;
         }
 
         // --- Upload Recipients Logic ---
@@ -652,23 +690,19 @@
                 showAlert('Please select a CSV file and ensure a campaign is created.', 'info');
                 return;
             }
-
             showLoading('Uploading recipients...');
-
             const formData = new FormData();
             formData.append('file', recipientFile);
             formData.append('campaign_id', currentCampaignId);
-
             try {
                 const response = await fetch('/upload-recipients', {
                     method: 'POST',
                     body: formData,
                 });
                 const result = await response.json();
-
                 if (result.success) {
                     showAlert(result.message, 'success');
-                    document.getElementById('send-campaign-btn').disabled = false; // Enable send button
+                    document.getElementById('send-campaign-btn').disabled = false;
                 } else {
                     showAlert('Error uploading recipients: ' + result.error, 'danger');
                 }
@@ -685,23 +719,17 @@
                 showAlert('No campaign selected or created.', 'info');
                 return;
             }
-
             if (!confirm('Are you sure you want to send this campaign? This action cannot be undone.')) {
                 return;
             }
-
             showLoading('Sending emails...');
-
             try {
                 const response = await fetch('/send-campaign', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ campaign_id: currentCampaignId }),
                 });
                 const result = await response.json();
-
                 if (result.success) {
                     let message = `Campaign sent! ${result.sent_count} out of ${result.total_recipients} emails dispatched.`;
                     if (result.errors && result.errors.length > 0) {
@@ -710,7 +738,6 @@
                     } else {
                         showAlert(message, 'success');
                     }
-                    // Refresh campaign list after sending
                     loadCampaigns();
                 } else {
                     showAlert('Error sending campaign: ' + result.error, 'danger');
@@ -728,7 +755,6 @@
             try {
                 const response = await fetch('/campaigns');
                 const result = await response.json();
-
                 if (result.success) {
                     displayCampaigns(result.campaigns);
                 } else {
@@ -743,13 +769,11 @@
 
         function displayCampaigns(campaigns) {
             const campaignsList = document.getElementById('campaigns-list');
-            campaignsList.innerHTML = ''; // Clear previous list
-
+            campaignsList.innerHTML = '';
             if (campaigns.length === 0) {
                 campaignsList.innerHTML = '<p>No campaigns found. Create one to get started!</p>';
                 return;
             }
-
             campaigns.forEach(campaign => {
                 const card = document.createElement('div');
                 card.className = 'campaign-card';
@@ -758,8 +782,7 @@
                     <p><strong>Created:</strong> ${new Date(campaign.created_at).toLocaleString()}</p>
                     <p><strong>Recipients:</strong> ${campaign.total_recipients}</p>
                     <p><strong>Status:</strong> <span class="status ${campaign.status}">${campaign.status.toUpperCase()}</span></p>
-                    <button class="btn" onclick="viewResults('${campaign.id}')">View Results</button>
-                `;
+                    <button class="btn" onclick="viewResults('${campaign.id}')">View Results</button>`;
                 campaignsList.appendChild(card);
             });
         }
@@ -767,12 +790,10 @@
         // --- View Results Logic ---
         async function loadCampaignOptions() {
             const selectElement = document.getElementById('selectCampaignResults');
-            selectElement.innerHTML = '<option value="">Select a sent campaign</option>'; // Reset
-
+            selectElement.innerHTML = '<option value="">Select a sent campaign</option>';
             try {
                 const response = await fetch('/campaigns');
                 const result = await response.json();
-
                 if (result.success) {
                     result.campaigns.filter(c => c.status === 'sent').forEach(campaign => {
                         const option = document.createElement('option');
@@ -806,10 +827,14 @@
             try {
                 const response = await fetch(`/campaign-results/${campaignId}`);
                 const result = await response.json();
-
                 if (result.success) {
                     document.getElementById('results-display').style.display = 'block';
                     displayResults(result);
+                    // Switch to the results tab automatically
+                    showTab('view-results'); 
+                    // Set the dropdown to the viewed campaign
+                    document.getElementById('selectCampaignResults').value = campaignId;
+                    document.getElementById('view-results-btn').disabled = false;
                 } else {
                     showAlert('Error fetching results: ' + result.error, 'danger');
                 }
@@ -826,23 +851,17 @@
             document.getElementById('campaign-total-recipients-results').textContent = data.campaign.total_recipients;
 
             const metricsGrid = document.getElementById('metrics-grid');
-            metricsGrid.innerHTML = ''; // Clear previous metrics
+            metricsGrid.innerHTML = '';
 
-            let highestOpenRate = -1;
-            let winningVariation = '';
-
-            // Determine the winner first based on Open Rate
+            let highestOpenRate = -1, winningVariation = '';
             for (const variationName in data.metrics) {
-                const metrics = data.metrics[variationName];
-                if (metrics.open_rate > highestOpenRate) {
-                    highestOpenRate = metrics.open_rate;
+                if (data.metrics[variationName].open_rate > highestOpenRate) {
+                    highestOpenRate = data.metrics[variationName].open_rate;
                     winningVariation = variationName;
                 }
             }
 
-            const chartLabels = [];
-            const openRates = [];
-
+            const chartLabels = [], openRates = [];
             for (const variationName in data.metrics) {
                 const metrics = data.metrics[variationName];
                 const card = document.createElement('div');
@@ -851,37 +870,34 @@
                     <h4>${variationName.replace('_', ' ')}</h4>
                     <p>Total Sent: <span class="value">${metrics.total_sent}</span></p>
                     <p>Opened: <span class="value">${metrics.opened}</span></p>
-                    <p>Open Rate: <span class="rate ${metrics.open_rate > 50 ? 'high' : metrics.open_rate > 20 ? 'medium' : 'low'}">${metrics.open_rate.toFixed(2)}%</span></p>
-                `;
+                    <p>Open Rate: <span class="rate ${metrics.open_rate > 50 ? 'high' : metrics.open_rate > 20 ? 'medium' : 'low'}">${metrics.open_rate.toFixed(2)}%</span></p>`;
                 metricsGrid.appendChild(card);
-
                 chartLabels.push(variationName.replace('_', ' '));
                 openRates.push(metrics.open_rate);
             }
-
             createResultsChart({ chartLabels, openRates });
         }
 
         function createResultsChart(metrics) {
             const ctx = document.getElementById('resultsChart').getContext('2d');
-
-            if (resultsChartInstance) {
-                resultsChartInstance.destroy(); // Destroy previous chart instance
-            }
+            if (resultsChartInstance) resultsChartInstance.destroy();
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(126, 87, 194, 0.8)');
+            gradient.addColorStop(1, 'rgba(102, 126, 234, 0.6)');
 
             resultsChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: metrics.chartLabels,
-                    datasets: [
-                        {
-                            label: 'Open Rate (%)',
-                            data: metrics.openRates,
-                            backgroundColor: 'rgba(102, 126, 234, 0.7)',
-                            borderColor: 'rgba(102, 126, 234, 1)',
-                            borderWidth: 1
-                        }
-                    ]
+                    datasets: [{
+                        label: 'Open Rate (%)',
+                        data: metrics.openRates,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(126, 87, 194, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }]
                 },
                 options: {
                     responsive: true,
@@ -889,19 +905,22 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Percentage (%)'
-                            }
+                            title: { display: true, text: 'Percentage (%)', color: '#c0c0c0' },
+                            ticks: { color: '#c0c0c0' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#c0c0c0' },
+                            grid: { display: false }
                         }
                     },
                     plugins: {
+                        legend: { display: false },
                         title: {
                             display: true,
-                            text: 'Email A/B Test Performance Comparison',
-                            font: {
-                                size: 16
-                            }
+                            text: 'Email A/B Test Performance',
+                            font: { size: 18 },
+                            color: '#ffffff'
                         }
                     }
                 }
@@ -911,65 +930,28 @@
         // --- Utility functions ---
         function showAlert(message, type) {
             const existingAlert = document.querySelector('.alert');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-
+            if (existingAlert) existingAlert.remove();
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.innerHTML = message;
-            alert.style.display = 'block'; // Make sure it's visible
-
+            alert.style.display = 'block';
             document.querySelector('.container').insertBefore(alert, document.querySelector('.tab-container'));
-
-            setTimeout(() => {
-                alert.remove();
-            }, 5000);
+            setTimeout(() => { alert.remove(); }, 5000);
         }
 
         function showLoading(message) {
             const loading = document.createElement('div');
             loading.id = 'loading-overlay';
-            loading.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>${message}</p>
-                </div>
-            `;
-            loading.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.6);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-                color: white;
-                font-size: 1.5em;
-                flex-direction: column;
-            `;
-
+            loading.innerHTML = `<div class="spinner"></div><p>${message}</p>`;
             document.body.appendChild(loading);
         }
 
         function hideLoading() {
             const loading = document.getElementById('loading-overlay');
-            if (loading) {
-                loading.remove();
-            }
+            if (loading) loading.remove();
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            showTab('create-campaign'); // Set initial tab
-            loadCampaigns(); // Load campaigns for manage tab in background
-        });
-
         // --- Finalize Mails Logic ---
-        // Elements
         const finalizeCampaignSelect = document.getElementById('finalizeCampaignSelect');
         const variantSelect = document.getElementById('variantSelect');
         const templateCategorySelect = document.getElementById('templateCategorySelect');
@@ -978,12 +960,8 @@
         const finalizedMailPreview = document.getElementById('finalized-mail-preview');
         const finalizedMailIframe = document.getElementById('finalizedMailIframe');
 
+        let selectedVariant = null, selectedSubject = '', finalizedHtml = '';
 
-        let selectedVariant = null;
-        let selectedSubject = '';
-        let finalizedHtml = '';
-
-        // Load campaigns for finalize tab
         async function loadFinalizeCampaigns() {
             finalizeCampaignSelect.innerHTML = '<option value="">Select a campaign</option>';
             try {
@@ -997,9 +975,7 @@
                         finalizeCampaignSelect.appendChild(option);
                     });
                 }
-            } catch (error) {
-                showAlert('Error loading campaigns: ' + error.message, 'danger');
-            }
+            } catch (error) { showAlert('Error loading campaigns: ' + error.message, 'danger'); }
         }
 
         finalizeCampaignSelect.addEventListener('change', async function() {
@@ -1021,11 +997,8 @@
                     });
                     variantSelect.disabled = false;
                 }
-            } catch (error) {
-                showAlert('Error loading variants: ' + error.message, 'danger');
-            } finally {
-                hideLoading();
-            }
+            } catch (error) { showAlert('Error loading variants: ' + error.message, 'danger'); }
+            finally { hideLoading(); }
         });
 
         variantSelect.addEventListener('change', function() {
@@ -1034,7 +1007,6 @@
             checkFinalizeReady();
         });
 
-        // Load template categories
         async function loadTemplateCategories() {
             templateCategorySelect.innerHTML = '<option value="">Select a category</option>';
             try {
@@ -1048,9 +1020,7 @@
                         templateCategorySelect.appendChild(option);
                     });
                 }
-            } catch (error) {
-                showAlert('Error loading template categories: ' + error.message, 'danger');
-            }
+            } catch (error) { showAlert('Error loading template categories: ' + error.message, 'danger'); }
         }
 
         templateCategorySelect.addEventListener('change', async function() {
@@ -1070,43 +1040,33 @@
                     });
                     templateFileSelect.disabled = false;
                 }
-            } catch (error) {
-                showAlert('Error loading template files: ' + error.message, 'danger');
-            } finally {
-                hideLoading();
-            }
+            } catch (error) { showAlert('Error loading template files: ' + error.message, 'danger'); }
+            finally { hideLoading(); }
         });
 
         templateFileSelect.addEventListener('change', checkFinalizeReady);
 
         function checkFinalizeReady() {
-            integrateBtn.disabled = !(
-                finalizeCampaignSelect.value &&
-                variantSelect.value &&
-                templateCategorySelect.value &&
-                templateFileSelect.value
-            );
+            integrateBtn.disabled = !(finalizeCampaignSelect.value && variantSelect.value && templateCategorySelect.value && templateFileSelect.value);
         }
 
-        // Integrate content and template
         integrateBtn.addEventListener('click', async function() {
             if (!(finalizeCampaignSelect.value && variantSelect.value && templateCategorySelect.value && templateFileSelect.value)) return;
             showLoading('Integrating content and template...');
             try {
-                // Get variant content
                 const campaignId = finalizeCampaignSelect.value;
                 const variantIdx = parseInt(variantSelect.value);
                 const variantRes = await fetch(`/get-campaign-variants/${campaignId}`);
                 const variantData = await variantRes.json();
                 if (!variantData.success) throw new Error('Failed to fetch variant');
                 const variant = variantData.variants[variantIdx];
-                // Get template content
+
                 const cat = templateCategorySelect.value;
                 const file = templateFileSelect.value;
                 const templateRes = await fetch(`/get-template-content/${cat}/${file}`);
                 const templateData = await templateRes.json();
                 if (!templateData.success) throw new Error('Failed to fetch template');
-                // Integrate
+                
                 const integrateRes = await fetch('/integrate-content-template', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1114,50 +1074,18 @@
                 });
                 const integrateData = await integrateRes.json();
                 if (!integrateData.success) throw new Error('Failed to integrate');
+                
                 finalizedHtml = integrateData.finalized_html;
                 finalizedMailIframe.srcdoc = finalizedHtml;
                 const previewFrame = document.getElementById("optimizedPreviewIframe");
                 if (previewFrame) previewFrame.srcdoc = finalizedHtml;
                 finalizedMailPreview.style.display = 'block';
+                showAlert('Content successfully integrated into template!', 'success');
 
-            } catch (error) {
-                showAlert('Error integrating: ' + error.message, 'danger');
-            } finally {
-                hideLoading();
-            }
+            } catch (error) { showAlert('Error integrating: ' + error.message, 'danger'); }
+            finally { hideLoading(); }
         });
 
-       /* // Send finalized mail
-        sendFinalizedMailBtn.addEventListener('click', async function() {
-            const file = finalizedSenderCSV.files[0];
-            if (!file || !finalizedHtml || !selectedSubject) {
-                showAlert('Please select a CSV file and integrate the mail first.', 'info');
-                return;
-            }
-            showLoading('Sending finalized emails...');
-            const formData = new FormData();
-            formData.append('sender_csv', file);
-            formData.append('subject', selectedSubject);
-            formData.append('html_body', finalizedHtml);
-            try {
-                const response = await fetch('/send-finalized-mail', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                if (result.success) {
-                    showAlert(`Finalized email sent to ${result.sent_count} recipients!`, 'success');
-                } else {
-                    showAlert('Error sending finalized email: ' + result.error, 'danger');
-                }
-            } catch (error) {
-                showAlert('An error occurred sending finalized email: ' + error.message, 'danger');
-            } finally {
-                hideLoading();
-            }
-        }); */
-
-        // Load data when Finalize Mails tab is shown
         document.querySelector('.tab-button[onclick="showTab(\'finalize-mails\')"]').addEventListener('click', function() {
             loadFinalizeCampaigns();
             loadTemplateCategories();
@@ -1166,28 +1094,29 @@
             templateFileSelect.innerHTML = '<option value="">Select a template</option>';
             templateFileSelect.disabled = true;
             finalizedMailPreview.style.display = 'none';
-
         });
         
-        
+        // --- Send Optimized Logic ---
         document.getElementById("optimizedCsvFile").addEventListener("change", function () {
             const file = this.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function (e) {
                 const rows = e.target.result.split("\n").filter(r => r.trim() !== "");
+                if (rows.length < 2) {
+                     showAlert("CSV file is empty or has no data rows.", "danger");
+                     return;
+                }
                 const headers = rows[0].split(",").map(h => h.trim());
                 const emailIdx = headers.indexOf("email");
                 const timeIdx = headers.indexOf("opentime");
                 if (emailIdx === -1 || timeIdx === -1) {
-                    alert("CSV must have 'email' and 'opentime' headers.");
+                    showAlert("CSV must have 'email' and 'opentime' headers.", "danger");
                     return;
                 }
 
                 const tbody = document.querySelector("#batchTable tbody");
                 tbody.innerHTML = "";
-
                 rows.slice(1).forEach(row => {
                     const cols = row.split(",");
                     const email = cols[emailIdx]?.trim();
@@ -1199,7 +1128,6 @@
                         tbody.appendChild(tr);
                     }
                 });
-
                 document.getElementById("optimizedResults").style.display = "block";
                 document.getElementById("startSendBtn").disabled = false;
             };
@@ -1207,7 +1135,9 @@
         });
 
         function classifyBatch(timeStr) {
+            if (!timeStr || !timeStr.includes(':')) return "Invalid Time";
             const [h, m] = timeStr.split(":").map(Number);
+            if (isNaN(h) || isNaN(m)) return "Invalid Time";
             if (h >= 6 && h < 10) return "Morning Batch 1";
             if (h >= 10 && h < 12) return "Morning Batch 2";
             if (h >= 12 && h < 17) return "Evening Batch 1";
@@ -1218,20 +1148,18 @@
         async function triggerOptimizedSend() {
             const fileInput = document.getElementById("optimizedCsvFile");
             if (!fileInput.files.length) {
-                alert("Upload a CSV first.");
+                showAlert("Upload a CSV first.", "info");
                 return;
             }
-
             if (!selectedSubject || !finalizedHtml) {
-                alert("Please finalize your email content before sending.");
+                showAlert("Please go to the 'Finalize Mails' tab and integrate your content before sending.", "info");
+                showTab('finalize-mails');
                 return;
             }
-
             const formData = new FormData();
             formData.append("customer_csv", fileInput.files[0]);
             formData.append("subject", selectedSubject);
             formData.append("html_body", finalizedHtml);
-
             try {
                 showLoading("Scheduling emails for each batch...");
                 const res = await fetch("/send-optimized-schedule", {
@@ -1242,19 +1170,38 @@
                 if (result.success) {
                     let summary = `<strong>✅ Emails scheduled successfully!</strong><br><br>`;
                     result.scheduled_batches.forEach(([batch, count]) => {
-                        summary += `📦 <b>${batch}:</b> <span style="color:green;">${count}</span> recipients<br>`;
+                        summary += `📦 <b>${batch}:</b> <span style="color:#56fcc2;">${count}</span> recipients<br>`;
                     });
                     showAlert(summary, "success");
                 } else {
                     showAlert("❌ Error: " + result.error, "danger");
                 }
             } catch (err) {
-                hideLoading();
                 showAlert("❌ Request failed. Please try again.", "danger");
+            } finally {
+                hideLoading();
             }
         }
-
-
+        
+        // --- Initialize ---
+        document.addEventListener('DOMContentLoaded', function() {
+            VANTA.WAVES({
+                el: "#vanta-bg",
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.00,
+                minWidth: 200.00,
+                scale: 1.00,
+                scaleMobile: 1.00,
+                color: 0x5092b,
+                shininess: 35.00,
+                waveHeight: 15.00,
+                waveSpeed: 0.75,
+                zoom: 0.85
+            });
+            showTab('create-campaign');
+        });
     </script>
 </body>
 </html>
