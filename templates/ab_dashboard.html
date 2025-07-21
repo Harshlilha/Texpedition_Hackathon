@@ -6,7 +6,7 @@
     <title>A/B Testing Dashboard - Smart Email Companion</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -822,19 +822,26 @@
             }
         });
 
+        // ==========================================================
+        // == THIS FUNCTION IS FIXED ==
+        // ==========================================================
         async function viewResults(campaignId) {
             showLoading('Fetching A/B test results...');
             try {
                 const response = await fetch(`/campaign-results/${campaignId}`);
                 const result = await response.json();
                 if (result.success) {
+                    // **FIX**: Programmatically switch to the results tab
+                    showTab('view-results');
+                    
+                    // Display the fetched data
                     document.getElementById('results-display').style.display = 'block';
                     displayResults(result);
-                    // Switch to the results tab automatically
-                    showTab('view-results'); 
-                    // Set the dropdown to the viewed campaign
+                    
+                    // **FIX**: Update the dropdown to show the current campaign
                     document.getElementById('selectCampaignResults').value = campaignId;
                     document.getElementById('view-results-btn').disabled = false;
+
                 } else {
                     showAlert('Error fetching results: ' + result.error, 'danger');
                 }
@@ -844,6 +851,9 @@
                 hideLoading();
             }
         }
+        // ==========================================================
+        // ==========================================================
+
 
         function displayResults(data) {
             document.getElementById('campaign-name-results').textContent = data.campaign.name;
@@ -1185,7 +1195,7 @@
         
         // --- Initialize ---
         document.addEventListener('DOMContentLoaded', function() {
-            VANTA.WAVES({
+            VANTA.NET({
                 el: "#vanta-bg",
                 mouseControls: true,
                 touchControls: true,
@@ -1194,11 +1204,11 @@
                 minWidth: 200.00,
                 scale: 1.00,
                 scaleMobile: 1.00,
-                color: 0x5092b,
-                shininess: 35.00,
-                waveHeight: 15.00,
-                waveSpeed: 0.75,
-                zoom: 0.85
+                color: 0x7e57c2,
+                backgroundColor: 0x0c0a1a,
+                points: 12.00,
+                maxDistance: 22.00,
+                spacing: 16.00
             });
             showTab('create-campaign');
         });
