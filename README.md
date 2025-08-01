@@ -249,6 +249,6 @@ We welcome contributions!
 
 **[⭐ Star this repository](https://github.com/Harshlilha/Texpedition_Hackathon)** if you find it helpful!
 
-Made with ❤️ by [Your Team Name]
+Made with ❤️ by [Repo-Owner]
 
 </div>
